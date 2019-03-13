@@ -1,0 +1,144 @@
+(1) Create a new repository and push to server
+echo "# github-test" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/canpe/github-test.git
+git push -u origin master
+
+(2) Git ‘origin’
+- It is an alias on your system for a particular remote repository.
+
+(3) HEAD in Git
+- HEAD is a reference to the last commit in the currently check-out branch. You can think of the HEAD as the "current branch".
+
+(4) Empty directories
+- Currently the design of the Git index (staging area) only permits files to be listed, directories never have to be added to the repository, and are not tracked on their own.
+
+(5) Git file types
+- Git sees every file in your working copy as one of three things:
+(a) Tracked: a file which has been previously staged or committed.
+(b) Untracked: a file which has not been staged or committed. (newly added files)
+(c) Ignored: a file which Git has been explicitly told to ignore
+
+(6) Multiple .gitignore files
+- Git ignore rules are usually defined in a .gitignore file at the root of your repository. 
+- However, you can choose to define multiple .gitignore files in different directories in your repository.
+- But the convention, and simplest approach, is to define a single .gitignore file in the root.
+
+(7) git log --oneline
+-Pretty way to see the commit history in a git repository.
+
+(8) git checkout <previous-commit>
+- Easy way to “load” any of these saved snapshots onto your development machine. 
+- Normally the HEAD points to master or some other local branch. 
+- But after checking out particular commit, it will point directly to the commit. 
+- This is called a “detached HEAD” state and not depends on any branch.
+- You can look at files, compile the project, run tests, and even edit files without worrying about losing the current state of the project. 
+- Nothing you do in here will be saved in your repository.
+- You can even do new commits but these commits will be orphaned when you change back to a branch.
+- Orphaned commits are up for deletion by Git's garbage collector.
+- The garbage collector runs on a configured interval and permanently destroys orphaned commits. 
+- To prevent orphaned commits from being garbage collected, we need to ensure we are on a branch. 
+- So, we use "git checkout -b <branch-name>" 
+
+(9) git checkout <branch-name>
+- To continue developing, you need to get back to the “current” state of your project.
+- All modifications you have done in previous step will remain.
+
+(10) git checkout <previous-commit> <file-name>
+- Checking out an old file does not move the HEAD pointer. 
+- It remains on the same branch and same commit, avoiding a 'detached head' state.
+- So, this is the way of revert back to an old version of an individual file. 
+
+(11) git revert HEAD
+- Git will create a new commit with the inverse of the last commit.
+- Open up the configured system editor prompting for a new commit message.
+- If we want to skip to open the editor, we can use option "--no-edit".
+
+Note: It's important to understand that git revert undoes a single commit, it does not "revert" back to the previous state of a project by removing all subsequent commits. In Git, this is actually called a reset, not a revert. 
+
+SAFE: Doesn’t change the project history, which makes it a “safe” operation for commits that have already been published to a shared repository.
+
+TARGET-ORIENTED: It is able to target an individual commit at an arbitrary point in the history, whereas git reset can only work backward from the current commit. We can undo particular commit. So, we use "git revert <previous-commit>"
+
+(12) git commit --amend
+- Convenient way to modify the most recent commit.
+- Open the configured system editor and let you modify the last commit message.
+- But, amending does not just alter the most recent commit, it replaces it entirely. (New commit with new ID)
+- Lets you combine staged changes with the previous commit instead of creating an entirely new commit without changing commit message.
+- So, we use "git commit --amend --no-edit"
+- Also be used to simply edit the previous commit message without changing its snapshot.
+- So, we use "git commit --amend -m "an updated commit message" "
+
+(13) Unstage changes (staged) (permanently) to a file:
+- git reset -- <filename>
+
+(14) Discarding local changes (unstaged) (permanently) to a file:
+- git checkout -- <filename>
+
+(15) Unstage changes (staged) (permanently) to all file:
+- git reset -- .
+
+(16) Discarding local changes (unstaged) (permanently) to all files
+- git checkout -- .
+
+(17) Discard all local changes to all files permanently.
+- git reset --hard
+
+(18) git reset (--hard vs --mixed vs --soft)
+
+(19) Merge: New commit vs Fast-forward merging
+New commit: If Master has diverged since the feauture branch was created, then merging the feature branch into master will create a merge commit.
+Fast-forward: If master branch has not modified, instead of creating a new commit, git will just point master to the latest commit of the feature branch.
+
+(20) Wrong merge direction (master -> Hotfix)
+
+(a) Source branch has not updated:
+git checkout Hotfix 
+git merge master
+>>Already up to date
+
+(b1) Source branch has updated - no mutual file modification:
+git checkout master
+git pull
+git checkout Hotfix 
+git merge master
+git commit -m "Merge branch 'master' into Hotfix"
+git push 
+>> Hotfix branch is ahead of master
+
+TO FIX: Merge branch 'Hotfix' into master
+git checkout master 
+git merge Hoftix
+git commit -m "Merge branch 'Hotfix' into master"
+git push
+>> master branch is even with master Hotfix
+
+(b2) Source branch has updated - have mutual file modifications (or even deleted on Hotfix):
+git checkout master
+git pull
+git checkout Hotfix 
+git merge master
+>> Hotfix branch conflicts with master
+
+TO FIX:
+(b2.1) Abort the merge
+git merge --abort
+>> Abort the merge attempt and remove all modifications on conflicts.
+>> Then we can continue with normal merge operation with correct direction.
+
+(b2.2) Fix conflicts and commit modifications
+git commit -m "Merge branch 'master' into Hotfix"
+git push 
+>> Hotfix branch is ahead of master
+
+TO FIX: Reset the merge commit
+git checkout development
+git reset --hard <previous-commit>
+git push -f 
+>> We cannot use 'git push' command since origin is already ahead, we need to force to push our reset operartion.
+>> Then we can continue with normal merge operation with correct direction.
+
+Note: If we continue with merging Hotfix branch into master (like we did step b1) in step b2.2, there would be no change on master branch since the all conflicts had already been resolved when merging master branch into Hotfix (step b2.2) So, if we know that those conflict are resolved in a desired way, then everything would be fine otherwise we could end up with losing files or modifications. 
+
