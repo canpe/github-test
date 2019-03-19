@@ -71,9 +71,22 @@ TARGET-ORIENTED: It is able to target an individual commit at an arbitrary point
 - Also be used to simply edit the previous commit message without changing its snapshot.
 - So, we use "git commit --amend -m "an updated commit message" "
 
+(*) git reset (git reset --mixed HEAD)
+- It will move the branch that HEAD is pointing to.
+- Git reset has three modes: soft, mixed, and hard. 
+- The default is "mixed".
+
 (*) git reset HEAD~1
 - Reseting last commit with keeping the changes as modified (unstaged) files.
-- (~1) The first parent commit of the current HEAD which will be reset to. 
+- (~1) The HEAD will be moved to parent of current HEAD. 
+
+(*) git reset <previous-commit>
+- Reseting back to particular commit
+
+(*) git reset (--hard vs --mixed vs --soft)
+- soft: Move the branch HEAD points to previous commit and leave the files as STAGED.
+- mixed: Move the branch HEAD points to previous commit and leave the files as UNSTAGED.
+- hard: Move the branch HEAD points to previous commit and remove modifications permanently.
 
 (*) Unstage changes (staged) (permanently):
 (a) git reset -- .
@@ -85,8 +98,6 @@ TARGET-ORIENTED: It is able to target an individual commit at an arbitrary point
 
 (*) Unstage and discard changes to all files (permanently):
 (a) git reset --hard
-
-(*) git reset (--hard vs --mixed vs --soft)
 
 (*) Merge: New commit vs Fast-forward merging
 New commit: If Master has diverged since the feauture branch was created, then merging the feature branch into master will create a merge commit.
